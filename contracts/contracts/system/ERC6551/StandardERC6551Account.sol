@@ -5,10 +5,16 @@ import "@openzeppelin/contracts/utils/introspection/IERC165.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "@openzeppelin/contracts/interfaces/IERC1271.sol";
 import "@openzeppelin/contracts/utils/cryptography/SignatureChecker.sol";
+import {IERC721Receiver} from "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
 import "../../interface/IERC6551Account.sol";
 import "../../providers/sequence/sstore2/contracts/utils/Bytecode.sol";
 
-contract StandardERC6551Account is IERC165, IERC1271, IERC6551Account {
+contract StandardERC6551Account is
+    IERC165,
+    IERC1271,
+    IERC6551Account,
+    IERC721Receiver
+{
     mapping(bytes32 => uint256) internal _nonce;
 
     /// @dev Token bound accounts MUST implement a `receive` function.
@@ -87,5 +93,13 @@ contract StandardERC6551Account is IERC165, IERC1271, IERC6551Account {
         }
 
         return "";
+    }
+    function onERC721Received(
+        address operator,
+        address from,
+        uint256 tokenId,
+        bytes memory data
+    ) public override returns (bytes4) {
+        return this.onERC721Received.selector; // 返回正确的magic value
     }
 }
