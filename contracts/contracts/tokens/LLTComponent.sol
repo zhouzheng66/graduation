@@ -8,8 +8,8 @@ import {ERC721URIStorage} from "@openzeppelin/contracts/token/ERC721/extensions/
 contract LLTComponent is ERC721, ERC721URIStorage, AccessControl {
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
     bytes32 public constant BURNER_ROLE = keccak256("BURNER_ROLE");
-    // mapping(uint256 => uint256) public componentIdToTokenId;
-
+    mapping(uint256 => uint256) public componentIdToTokenId;
+    uint256 private _totalSupply;
     // 每个代币的属性
     mapping(uint256 => ComponentAttributes) public componentAttributes;
 
@@ -42,11 +42,23 @@ contract LLTComponent is ERC721, ERC721URIStorage, AccessControl {
             defense
         ); // 记录组件属性
         _safeMint(to, tokenId);
+        componentIdToTokenId[id] = tokenId;
+        _totalSupply+=1;
     }
     function getAttributes(
         uint256 tokenId
     ) public view returns (ComponentAttributes memory) {
         return componentAttributes[tokenId];
+    }
+    function getComponentTokenId(
+        uint256 id
+    ) public view returns (uint256) {
+        return componentIdToTokenId[id];
+    }
+    /// @notice 获取当前已铸造的代币总量
+    /// @return 代币总供应量
+    function totalSupply() public view returns (uint256) {
+        return _totalSupply;
     }
     // The following functions are overrides required by Solidity.
 
