@@ -41,6 +41,15 @@ describe("ComponentStore", function () {
     });
   });
   describe("Mint", async () => {
+    it("Should be mint only", async () => {
+      await expect(componentStore.mint(1, 100, 200)).to.be.reverted;
+      await lltToken.approve(componentStore.target, 1000);
+      await expect(componentStore.mint(1, 100, 200))
+        .to.emit(componentStore, "Minted")
+        .withArgs(1000, owner.address);
+      expect(await testERC721.balanceOf(owner.address)).to.equal(1);
+      expect(await testERC721.totalSupply()).to.equal(1);
+    });
     it("Should mint by store", async () => {
       await lltToken.approve(componentStore.target, 1000);
       await expect(componentStore.mintAndList(1, 100, 200, 300))

@@ -1,6 +1,6 @@
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
-const { generateCalldataFromABI } = require("../../../utils/callDataGenerator");
+const { generateCalldataFromABI } = require("../../../utils/calldataGenerator");
 describe("StanrdERC6551Account", function () {
   let erc6551Registry, standardERC6551Account, testToken721;
   let owner, addr1, addr2, addrs;

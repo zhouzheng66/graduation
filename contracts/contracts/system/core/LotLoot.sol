@@ -177,6 +177,17 @@ contract LotLoot {
             );
     }
 
+
+    event ComponentLoaded(
+        address indexed owner,
+        uint256 indexed carTokenId,
+        uint256 indexed componentTokenId
+    );
+    event ComponentUnloaded(
+        address indexed owner,
+        uint256 indexed carTokenId,
+        uint256 indexed componentTokenId
+    );
     /// @notice 装载组件到汽车
     /// @param _carTokenId 汽车的 tokenId
     /// @param _componentTokenId 组件的 tokenId
@@ -185,15 +196,18 @@ contract LotLoot {
         require(lltComponent.getApproved(_carTokenId) == address(this));
         address _carAddress = _account(address(carNFT), _carTokenId);
         lltComponent.safeTransferFrom(msg.sender, _carAddress, _componentTokenId);
+
+        // 触发 ComponentLoaded 事件
+        emit ComponentLoaded(msg.sender, _carTokenId, _componentTokenId);
     }
 
-    /// @notice 从汽车卸载组件
-    /// @param _carTokenId 汽车的 tokenId
-    /// @param _componentTokenId 组件的 tokenId
     function unload(uint _carTokenId, uint _componentTokenId) public {
         require(carNFT.ownerOf(_carTokenId) == msg.sender, "Not owner of car");
-        require(lltComponent.getApproved(_carTokenId) == address(this));
+        require(lltComponent.getApproved(_componentTokenId) == address(this));
         address _carAddress = _account(address(carNFT), _carTokenId);
         lltComponent.safeTransferFrom(_carAddress, msg.sender, _componentTokenId);
+
+        // 触发 ComponentUnloaded 事件
+        emit ComponentUnloaded(msg.sender, _carTokenId, _componentTokenId);
     }
 }

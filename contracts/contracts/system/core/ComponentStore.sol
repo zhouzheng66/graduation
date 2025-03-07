@@ -255,4 +255,36 @@ contract ComponentStore is AccessControl, ReentrancyGuard {
         }
         return activeListings;
     }
+    event Minted(
+        uint256 indexed tokenId,
+        address indexed to
+    );
+
+    /// @notice 只铸造新的 NFT 而不上架
+    /// @dev 调用者必须确保市场合约具有 MINTER_ROLE 权限
+    /// @param id 组件 ID
+    /// @param speedUp 速度加成属性
+    /// @param defense 防御加成属性
+    function mint(
+        uint256 id,
+        uint256 speedUp,
+        uint256 defense
+    ) external {
+        require(
+            nftContract.hasRole(nftContract.MINTER_ROLE(), address(this)),
+            "Marketplace: Not authorized to mint"
+        );
+        require(
+            lltToken.transferFrom(msg.sender, address(this), mintPrice),
+            "Token transfer failed"
+        );
+        uint256 _tokenId = currentTokenId();
+        _tokenIdCounter.increment();
+
+        // 铸造 NFT
+        nftContract.safeMint(msg.sender, _tokenId, id, speedUp, defense);
+
+        // 触发 Minted 事件
+        emit Minted(_tokenId, msg.sender);
+    }
 }
